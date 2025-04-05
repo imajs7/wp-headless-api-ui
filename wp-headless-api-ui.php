@@ -8,6 +8,7 @@
 
 defined('ABSPATH') || exit;
 
+
 // Create database table on plugin activation
 register_activation_hook(__FILE__, function () {
     global $wpdb;

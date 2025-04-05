@@ -1,4 +1,5 @@
 <?php
+
 add_action('admin_menu', function () {
     add_menu_page(
         'Headless API Builder',
@@ -9,6 +10,16 @@ add_action('admin_menu', function () {
         'dashicons-rest-api',
         100
     );
+
+    add_submenu_page(
+        'wp-headless-api-ui',
+        'Update Plugin',
+        'Update Plugin',
+        'manage_options',
+        'wp-headless-api-ui-update',
+        'wp_headless_api_ui_update_page'
+    );
+
 });
 
 function wp_headless_api_ui_page() {
@@ -45,7 +56,13 @@ function wp_headless_api_ui_page() {
     $post_types = get_post_types(['public' => true], 'objects');
     ?>
     <div class="wrap">
-        <h1>Headless API Endpoint Builder</h1>
+        <?php
+        $current_version = get_option('wp_headless_api_plugin_version', 'v1.00');
+        ?>
+        <h1>Headless API Endpoint Builder <span style='font-size:10px'><?php echo esc_html($current_version); ?></span></h1>
+        <div id="plugin-update-notice"></div>
+
+
         <form method="post">
             <h2>Add New Endpoint</h2>
             <table class="form-table">
@@ -102,13 +119,13 @@ function wp_headless_api_ui_page() {
                         <td><code><?php echo esc_html($ep->slug); ?></code></td>
                         <td><?php echo esc_html($ep->post_type); ?></td>
                         <td>
-    <ul style="margin:0;padding-left:1em;">
-        <?php foreach (json_decode($ep->fields) as $map): ?>
-            <?php [$original, $alias] = explode(':', $map); ?>
-            <li><code><?php echo esc_html($original); ?></code> → <strong><?php echo esc_html($alias); ?></strong></li>
-        <?php endforeach; ?>
-    </ul>
-</td>
+                            <ul style="margin:0;padding-left:1em;">
+                                <?php foreach (json_decode($ep->fields) as $map): ?>
+                                    <?php [$original, $alias] = explode(':', $map); ?>
+                                    <li><code><?php echo esc_html($original); ?></code> → <strong><?php echo esc_html($alias); ?></strong></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </td>
                         <td><a href="?page=wp-headless-api-ui&delete=<?php echo $ep->id; ?>" class="button button-secondary">Delete</a></td>
                     </tr>
                 <?php endforeach; ?>
@@ -120,7 +137,6 @@ function wp_headless_api_ui_page() {
 
 add_action('wp_ajax_headless_api_get_meta_fields', function () {
     check_ajax_referer('headless_api_nonce');
-
     $post_type = sanitize_text_field($_POST['post_type']);
     $sample = get_posts(['post_type' => $post_type, 'numberposts' => 1]);
 
@@ -130,16 +146,20 @@ add_action('wp_ajax_headless_api_get_meta_fields', function () {
 
     $meta = get_post_meta($sample[0]->ID);
     $meta_keys = array_keys($meta);
-
     wp_send_json_success($meta_keys);
 });
 
 add_action('admin_enqueue_scripts', function () {
-    if (isset($_GET['page']) && $_GET['page'] === 'wp-headless-api-ui') {
-        wp_enqueue_script('wp-headless-api-ui-js', plugin_dir_url(__FILE__) . 'assets/admin-ui.js', ['jquery'], null, true);
-        wp_localize_script('wp-headless-api-ui-js', 'HeadlessAPIData', [
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce'    => wp_create_nonce('headless_api_nonce')
-        ]);
-    }
+    wp_enqueue_script('wp-headless-api-ui-js', plugin_dir_url(__FILE__) . 'assets/admin-ui.js', ['jquery'], null, true);
+    wp_localize_script('wp-headless-api-ui-js', 'HeadlessAPIData', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('headless_api_nonce')
+    ]);
 });
+
+
+// Load other components
+if (is_admin()) {
+    require_once plugin_dir_path(__FILE__) . 'plugin-update-check.php';
+    require_once plugin_dir_path(__FILE__) . 'admin-ui-update.php';  
+}

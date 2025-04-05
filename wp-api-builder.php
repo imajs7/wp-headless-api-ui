@@ -1,10 +1,16 @@
 <?php
 /**
- * Plugin Name: WP Headless API
- * Description: Minimal plugin to register UI-defined REST API endpoints from the database.
+ * Plugin Name: WP API Builder
+ * Plugin URI: https://wpnovel.com/
+ * Description: A lightweight and powerful plugin to create custom REST API endpoints directly from the WordPress admin panel. Define endpoints, fields, filters, and access rules — no coding required.
  * Version: 0.1
  * Author: Anurag Jaisingh
+ * Author URI: https://imajs7.com/
+ * License: GPL2
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: wp-api-builder
  */
+
 
 defined('ABSPATH') || exit;
 

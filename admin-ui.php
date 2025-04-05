@@ -2,8 +2,8 @@
 
 add_action('admin_menu', function () {
     add_menu_page(
-        'Headless API Builder',
-        'API Builder',
+        'WordPress API Builder',
+        'WP API Builder',
         'manage_options',
         'wp-headless-api-ui',
         'wp_headless_api_ui_page',
@@ -59,7 +59,7 @@ function wp_headless_api_ui_page() {
         <?php
         $current_version = get_option('wp_headless_api_plugin_version', 'v1.00');
         ?>
-        <h1>Headless API Endpoint Builder <span style='font-size:10px'><?php echo esc_html($current_version); ?></span></h1>
+        <h1>WordPress API Endpoint Builder <span style='font-size:10px'><?php echo esc_html($current_version); ?></span></h1>
         <div id="plugin-update-notice"></div>
 
 
